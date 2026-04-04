@@ -21,6 +21,32 @@ public class AtletaService {
         this.cartolaApiClient = cartolaApiClient;
     }
 
+    public AtletaDTO buscarAtletasPorId(Integer id){
+        if (id == null){
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Informe um id válido"
+            );
+        }
+
+        MercadoResponse mercado = cartolaApiClient.buscarMercado();
+
+        if (mercado == null || mercado.getAtletas() == null){
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Resposta inválida da API do Cartola"
+            );
+        }
+
+        return mercado.getAtletas().stream()
+                .filter(atleta -> atleta.getAtletaId() != null && atleta.getAtletaId().equals(id))
+                .findFirst()
+                .orElseThrow(()-> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Atleta não encontrado"
+                ));
+    }
+
     public AtletaBuscaResponse buscarAtletasPorNome(String nome, boolean exato) {
         if (nome == null || nome.isBlank()) {
             throw new ResponseStatusException(
