@@ -1,5 +1,7 @@
 package corneteiro.dto;
 
+import corneteiro.dto.Atleta.AtletaDTO;
+
 import java.util.List;
 
 public class MercadoResponse {

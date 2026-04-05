@@ -1,18 +1,27 @@
-package corneteiro.dto;
+package corneteiro.dto.Atleta;
 
 import java.util.List;
 
-public class AtletaListaResponse {
+public class AtletaBuscaResponse {
 
+    private String termoBusca;
     private Integer quantidade;
     private List<AtletaDTO> atletas;
 
-    public AtletaListaResponse() {
-    }
+    public AtletaBuscaResponse(){}
 
-    public AtletaListaResponse(Integer quantidade, List<AtletaDTO> atletas) {
+    public AtletaBuscaResponse(String termoBusca, Integer quantidade, List<AtletaDTO> atletas) {
+        this.termoBusca = termoBusca;
         this.quantidade = quantidade;
         this.atletas = atletas;
+    }
+
+    public String getTermoBusca() {
+        return termoBusca;
+    }
+
+    public void setTermoBusca(String termoBusca) {
+        this.termoBusca = termoBusca;
     }
 
     public Integer getQuantidade() {

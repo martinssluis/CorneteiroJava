@@ -1,9 +1,9 @@
 package corneteiro.service;
 
 import corneteiro.client.CartolaApiClient;
-import corneteiro.dto.AtletaBuscaResponse;
-import corneteiro.dto.AtletaDTO;
-import corneteiro.dto.AtletaListaResponse;
+import corneteiro.dto.Atleta.AtletaBuscaResponse;
+import corneteiro.dto.Atleta.AtletaDTO;
+import corneteiro.dto.Atleta.AtletaListaResponse;
 import corneteiro.dto.MercadoResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

@@ -1,8 +1,8 @@
 package corneteiro.controller;
 
-import corneteiro.dto.AtletaBuscaResponse;
-import corneteiro.dto.AtletaDTO;
-import corneteiro.dto.AtletaListaResponse;
+import corneteiro.dto.Atleta.AtletaBuscaResponse;
+import corneteiro.dto.Atleta.AtletaDTO;
+import corneteiro.dto.Atleta.AtletaListaResponse;
 import corneteiro.service.AtletaService;
 import org.springframework.web.bind.annotation.*;
 

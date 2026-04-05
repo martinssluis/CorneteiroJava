@@ -1,4 +1,4 @@
-package corneteiro.dto;
+package corneteiro.dto.Atleta;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
