@@ -2,6 +2,7 @@ package corneteiro.controller;
 
 import corneteiro.dto.AtletaBuscaResponse;
 import corneteiro.dto.AtletaDTO;
+import corneteiro.dto.AtletaListaResponse;
 import corneteiro.service.AtletaService;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,11 @@ public class AtletaController {
 
     public AtletaController(AtletaService atletaService){
         this.atletaService = atletaService;
+    }
+
+    @GetMapping
+    public AtletaListaResponse listarAtletas(){
+        return atletaService.listarAtletas();
     }
 
     @GetMapping("/buscar")
