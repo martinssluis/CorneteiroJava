@@ -1,13 +1,11 @@
 package corneteiro.controller;
 
 import corneteiro.dto.Atleta.AtletaDTO;
+import corneteiro.dto.Clube.ClubeBuscaResponse;
 import corneteiro.dto.Clube.ClubeDTO;
 import corneteiro.dto.Clube.ClubeListaResponse;
 import corneteiro.service.ClubeService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/clubes")
@@ -20,6 +18,14 @@ public class ClubeController {
     @GetMapping
     public ClubeListaResponse listarClubes(){
         return clubeService.listarClubes();
+    }
+
+    @GetMapping("/buscar")
+    public ClubeBuscaResponse buscarPorNome(
+            @RequestParam String nome,
+            @RequestParam(defaultValue = "false") boolean exato
+            ){
+        return clubeService.buscarClubePorNome(nome, exato);
     }
 
     @GetMapping("/{id}")
