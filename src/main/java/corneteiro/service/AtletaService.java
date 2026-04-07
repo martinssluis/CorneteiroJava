@@ -5,6 +5,9 @@ import corneteiro.dto.Atleta.AtletaBuscaResponse;
 import corneteiro.dto.Atleta.AtletaDTO;
 import corneteiro.dto.Atleta.AtletaListaResponse;
 import corneteiro.dto.MercadoResponse;
+import corneteiro.exception.IntegracaoException;
+import corneteiro.exception.RecursoNaoEncontradoException;
+import corneteiro.exception.RequisicaoInvalidaException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,10 +29,7 @@ public class AtletaService {
         MercadoResponse mercado = cartolaApiClient.buscarMercado();
 
         if (mercado == null || mercado.getAtletas() == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Resposta inválida da API do Cartola"
-            );
+            throw new IntegracaoException("Resposta inválida da API do Cartola");
         }
 
         return new AtletaListaResponse(
@@ -40,45 +40,30 @@ public class AtletaService {
 
     public AtletaDTO buscarAtletasPorId(Integer id){
         if (id == null){
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Informe um id válido"
-            );
+            throw new RequisicaoInvalidaException("Informe um ID válid");
         }
 
         MercadoResponse mercado = cartolaApiClient.buscarMercado();
 
         if (mercado == null || mercado.getAtletas() == null){
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Resposta inválida da API do Cartola"
-            );
+            throw new IntegracaoException("Resposta inválida da API do Cartola");
         }
 
         return mercado.getAtletas().stream()
                 .filter(atleta -> atleta.getAtletaId() != null && atleta.getAtletaId().equals(id))
                 .findFirst()
-                .orElseThrow(()-> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Atleta não encontrado"
-                ));
+                .orElseThrow(()-> new RecursoNaoEncontradoException("Atleta não encontrado."));
     }
 
     public AtletaBuscaResponse buscarAtletasPorNome(String nome, boolean exato) {
         if (nome == null || nome.isBlank()) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Informe o parâmetro 'nome'"
-            );
+            throw new RequisicaoInvalidaException("Informe o parâmetro 'nome'");
         }
 
         MercadoResponse mercado = cartolaApiClient.buscarMercado();
 
         if(mercado == null || mercado.getAtletas() == null){
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Resposta inválida da API do Cartola"
-            );
+            throw new IntegracaoException("Resposta inválida da API do Cartola");
         }
 
         String termoNormalizado = normalizar(nome);
@@ -88,10 +73,7 @@ public class AtletaService {
                 .toList();
 
         if(resultados.isEmpty()){
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Nenhum atleta encontrado"
-            );
+            throw new RecursoNaoEncontradoException("Nenhum atleta encontrado");
         }
         return new AtletaBuscaResponse(nome, resultados.size(), resultados);
     }

@@ -1,12 +1,13 @@
 package corneteiro.service;
 
 import corneteiro.client.CartolaApiClient;
-import corneteiro.dto.Atleta.AtletaDTO;
-import corneteiro.dto.Atleta.AtletaListaResponse;
 import corneteiro.dto.Clube.ClubeBuscaResponse;
 import corneteiro.dto.Clube.ClubeDTO;
 import corneteiro.dto.Clube.ClubeListaResponse;
 import corneteiro.dto.MercadoResponse;
+import corneteiro.exception.IntegracaoException;
+import corneteiro.exception.RecursoNaoEncontradoException;
+import corneteiro.exception.RequisicaoInvalidaException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,10 +27,7 @@ public class ClubeService {
         MercadoResponse mercado = cartolaApiClient.buscarMercado();
 
         if (mercado == null || mercado.getClubes() == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Resposta inválida da API do Cartola"
-            );
+            throw new IntegracaoException("Resposta inválida da API do Cartola");
         }
 
         return new ClubeListaResponse(
@@ -40,47 +38,32 @@ public class ClubeService {
 
     public ClubeDTO buscarClubesPorId(Integer id){
         if(id==null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Informe um id válido"
-            );
+            throw new RequisicaoInvalidaException("Informe um id válido");
         }
 
             MercadoResponse mercado = cartolaApiClient.buscarMercado();
 
             if(mercado == null || mercado.getClubes() == null){
-                throw new ResponseStatusException(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Resposta inválida da API do Cartola"
-                );
+                throw new IntegracaoException("Resposta inválida da API do Cartola");
             }
 
             ClubeDTO clube = mercado.getClubes().get(id);
 
            if (clube == null){
-               throw new ResponseStatusException(
-                       HttpStatus.NOT_FOUND,
-                       "Clube não encontrado"
-               );
+               throw new RecursoNaoEncontradoException("Clube não encontrado");
            }
            return clube;
         }
 
         public ClubeBuscaResponse buscarClubePorNome(String nome, boolean exato){
             if(nome == null || nome.isBlank()){
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Informe o parâmetro 'nome'"
-                );
+                throw new RequisicaoInvalidaException("Informe o parâmetro 'nome'.");
             }
 
             MercadoResponse mercado = cartolaApiClient.buscarMercado();
 
             if(mercado == null || mercado.getClubes() == null){
-                throw new ResponseStatusException(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Resposta inválida da API do Carola"
-                );
+                throw new IntegracaoException("Resposta inválida da API do Cartola.");
             }
 
             List<ClubeDTO> clubesFiltrados = mercado.getClubes().values().stream()
@@ -95,10 +78,7 @@ public class ClubeService {
                     }).toList();
 
             if(clubesFiltrados.isEmpty()){
-                 throw new ResponseStatusException(
-                         HttpStatus.NOT_FOUND,
-                         "Nenhum clube encontrado"
-                 );
+                 throw new RecursoNaoEncontradoException("Nenhum clube encontrado");
             }
 
             return new ClubeBuscaResponse(
