@@ -26,11 +26,11 @@ public class AtletaController {
             @RequestParam String nome,
             @RequestParam(defaultValue = "false") boolean exato
     ) {
-        return atletaService.buscarAtletasPorNome(nome, exato);
+        return atletaService.buscarAtletaPorNome(nome, exato);
     }
 
     @GetMapping("/{id}")
     public AtletaDTO buscarporId(@PathVariable Integer id){
-        return atletaService.buscarAtletasPorId(id);
+        return atletaService.buscarAtletaPorId(id);
     }
 }
