@@ -1,6 +1,5 @@
 package corneteiro.controller;
 
-import corneteiro.dto.Atleta.AtletaDTO;
 import corneteiro.dto.Clube.ClubeBuscaResponse;
 import corneteiro.dto.Clube.ClubeDTO;
 import corneteiro.dto.Clube.ClubeListaResponse;
@@ -29,5 +28,5 @@ public class ClubeController {
     }
 
     @GetMapping("/{id}")
-    public ClubeDTO buscarporId(@PathVariable Integer id){ return clubeService.buscarClubesPorId(id); }
+    public ClubeDTO buscarporId(@PathVariable Integer id){ return clubeService.buscarClubePorId(id); }
 }
