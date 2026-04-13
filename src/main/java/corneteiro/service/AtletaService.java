@@ -1,106 +1,64 @@
 package corneteiro.service;
 
-import corneteiro.client.CartolaApiClient;
 import corneteiro.dto.Atleta.AtletaBuscaResponse;
 import corneteiro.dto.Atleta.AtletaDTO;
 import corneteiro.dto.Atleta.AtletaListaResponse;
 import corneteiro.dto.MercadoResponse;
-import corneteiro.exception.IntegracaoException;
 import corneteiro.exception.RecursoNaoEncontradoException;
 import corneteiro.exception.RequisicaoInvalidaException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.text.Normalizer;
 import java.util.List;
-import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 public class AtletaService {
 
-    private final CartolaApiClient cartolaApiClient;
+    private final MercadoProvider mercadoProvider;
 
-    public AtletaService(CartolaApiClient cartolaApiClient){
-        this.cartolaApiClient = cartolaApiClient;
+    public AtletaService(MercadoProvider mercadoProvider) {
+        this.mercadoProvider = mercadoProvider;
     }
 
     public AtletaListaResponse listarAtletas() {
-        MercadoResponse mercado = cartolaApiClient.buscarMercado();
+        MercadoResponse mercado = mercadoProvider.obterMercadoComAtletas();
+        List<AtletaDTO> atletas = mercado.getAtletas();
 
-        if (mercado == null || mercado.getAtletas() == null) {
-            throw new IntegracaoException("Resposta inválida da API do Cartola");
-        }
-
-        return new AtletaListaResponse(
-                mercado.getAtletas().size(),
-                mercado.getAtletas()
-        );
+        return new AtletaListaResponse(atletas.size(), atletas);
     }
 
-    public AtletaDTO buscarAtletasPorId(Integer id){
-        if (id == null){
-            throw new RequisicaoInvalidaException("Informe um ID válid");
+    public AtletaBuscaResponse buscarAtletaPorNome(String nome, boolean exato) {
+        if (nome == null || nome.isBlank()) {
+            throw new RequisicaoInvalidaException("O nome para busca é obrigatório.");
         }
 
-        MercadoResponse mercado = cartolaApiClient.buscarMercado();
+        MercadoResponse mercado = mercadoProvider.obterMercadoComAtletas();
 
-        if (mercado == null || mercado.getAtletas() == null){
-            throw new IntegracaoException("Resposta inválida da API do Cartola");
-        }
+        List<AtletaDTO> encontrados = mercado.getAtletas().stream()
+                .filter(atleta -> {
+                    if (atleta.getApelido() == null) {
+                        return false;
+                    }
+
+                    if (exato) {
+                        return atleta.getApelido().equalsIgnoreCase(nome);
+                    }
+
+                    return atleta.getApelido().toLowerCase().contains(nome.toLowerCase());
+                })
+                .collect(Collectors.toList());
+
+        return new AtletaBuscaResponse(nome, encontrados.size(), encontrados);
+    }
+
+    public AtletaDTO buscarAtletaPorId(Integer id) {
+        MercadoResponse mercado = mercadoProvider.obterMercadoComAtletas();
 
         return mercado.getAtletas().stream()
-                .filter(atleta -> atleta.getAtletaId() != null && atleta.getAtletaId().equals(id))
+                .filter(atleta -> atleta.getAtletaId().equals(id))
                 .findFirst()
-                .orElseThrow(()-> new RecursoNaoEncontradoException("Atleta não encontrado."));
-    }
-
-    public AtletaBuscaResponse buscarAtletasPorNome(String nome, boolean exato) {
-        if (nome == null || nome.isBlank()) {
-            throw new RequisicaoInvalidaException("Informe o parâmetro 'nome'");
-        }
-
-        MercadoResponse mercado = cartolaApiClient.buscarMercado();
-
-        if(mercado == null || mercado.getAtletas() == null){
-            throw new IntegracaoException("Resposta inválida da API do Cartola");
-        }
-
-        String termoNormalizado = normalizar(nome);
-
-        List<AtletaDTO> resultados = mercado.getAtletas().stream()
-                .filter(atleta -> correspondeBusca(atleta, termoNormalizado, exato))
-                .toList();
-
-        if(resultados.isEmpty()){
-            throw new RecursoNaoEncontradoException("Nenhum atleta encontrado");
-        }
-        return new AtletaBuscaResponse(nome, resultados.size(), resultados);
-    }
-
-    private boolean correspondeBusca(AtletaDTO atleta, String termo, boolean exato){
-        String nome = normalizar(atleta.getNome());
-        String apelido = normalizar(atleta.getApelido());
-        String slug = normalizar(atleta.getSlug());
-
-        if(exato){
-            return nome.equals(termo)
-                    || apelido.equals(termo)
-                    || slug.equals(termo);
-        }
-
-        return nome.contains(termo)
-                || apelido.contains(termo)
-                || slug.contains(termo);
-    }
-    private String normalizar(String valor) {
-        if (valor == null) {
-            return "";
-        }
-
-        String texto = Normalizer.normalize(valor, Normalizer.Form.NFD);
-        return texto.replaceAll("\\p{M}", "")
-                .toLowerCase(Locale.ROOT)
-                .trim();
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Atleta com id " + id + " não encontrado."
+                ));
     }
 }
