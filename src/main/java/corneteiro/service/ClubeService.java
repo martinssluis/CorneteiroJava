@@ -1,91 +1,65 @@
 package corneteiro.service;
 
-import corneteiro.client.CartolaApiClient;
 import corneteiro.dto.Clube.ClubeBuscaResponse;
 import corneteiro.dto.Clube.ClubeDTO;
 import corneteiro.dto.Clube.ClubeListaResponse;
 import corneteiro.dto.MercadoResponse;
-import corneteiro.exception.IntegracaoException;
 import corneteiro.exception.RecursoNaoEncontradoException;
 import corneteiro.exception.RequisicaoInvalidaException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import static java.util.spi.ToolProvider.findFirst;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ClubeService {
 
-    private final CartolaApiClient cartolaApiClient;
+    private final MercadoProvider mercadoProvider;
 
-    public ClubeService(CartolaApiClient cartolaApiClient) {this.cartolaApiClient = cartolaApiClient;}
+    public ClubeService(MercadoProvider mercadoProvider) {
+        this.mercadoProvider = mercadoProvider;
+    }
 
     public ClubeListaResponse listarClubes() {
-        MercadoResponse mercado = cartolaApiClient.buscarMercado();
+        MercadoResponse mercado = mercadoProvider.obterMercadoComClubes();
 
-        if (mercado == null || mercado.getClubes() == null) {
-            throw new IntegracaoException("Resposta inválida da API do Cartola");
-        }
+        Map<Integer, ClubeDTO> clubesMap = mercado.getClubes();
+        List<ClubeDTO> clubes = new ArrayList<>(clubesMap.values());
 
-        return new ClubeListaResponse(
-                mercado.getClubes().size(),
-                mercado.getClubes().values().stream().toList()
-        );
+        return new ClubeListaResponse(clubes.size(), clubes);
     }
 
-    public ClubeDTO buscarClubesPorId(Integer id){
-        if(id==null) {
-            throw new RequisicaoInvalidaException("Informe um id válido");
+    public ClubeBuscaResponse buscarClubePorNome(String nome, boolean exato) {
+        if (nome == null || nome.isBlank()) {
+            throw new RequisicaoInvalidaException("O nome para busca é obrigatório.");
         }
 
-            MercadoResponse mercado = cartolaApiClient.buscarMercado();
+        MercadoResponse mercado = mercadoProvider.obterMercadoComClubes();
 
-            if(mercado == null || mercado.getClubes() == null){
-                throw new IntegracaoException("Resposta inválida da API do Cartola");
-            }
+        List<ClubeDTO> clubesEncontrados = mercado.getClubes().values().stream()
+                .filter(clube -> clube.getNome() != null)
+                .filter(clube -> {
+                    if (exato) {
+                        return clube.getNome().equalsIgnoreCase(nome);
+                    }
+                    return clube.getNome().toLowerCase().contains(nome.toLowerCase());
+                })
+                .collect(Collectors.toList());
 
-            ClubeDTO clube = mercado.getClubes().get(id);
-
-           if (clube == null){
-               throw new RecursoNaoEncontradoException("Clube não encontrado");
-           }
-           return clube;
-        }
-
-        public ClubeBuscaResponse buscarClubePorNome(String nome, boolean exato){
-            if(nome == null || nome.isBlank()){
-                throw new RequisicaoInvalidaException("Informe o parâmetro 'nome'.");
-            }
-
-            MercadoResponse mercado = cartolaApiClient.buscarMercado();
-
-            if(mercado == null || mercado.getClubes() == null){
-                throw new IntegracaoException("Resposta inválida da API do Cartola.");
-            }
-
-            List<ClubeDTO> clubesFiltrados = mercado.getClubes().values().stream()
-                    .filter(clube -> {
-                        if(clube.getNome() == null) return false;
-
-                        if(exato){
-                            return clube.getNome().equalsIgnoreCase(nome);
-                        } else{
-                            return clube.getNome().toLowerCase().contains(nome.toLowerCase());
-                        }
-                    }).toList();
-
-            if(clubesFiltrados.isEmpty()){
-                 throw new RecursoNaoEncontradoException("Nenhum clube encontrado");
-            }
-
-            return new ClubeBuscaResponse(
-                    nome,
-                    clubesFiltrados.size(),
-                    clubesFiltrados
-            );
-        }
+        return new ClubeBuscaResponse(nome, clubesEncontrados.size(), clubesEncontrados);
     }
 
+    public ClubeDTO buscarClubePorId(Integer id) {
+        MercadoResponse mercado = mercadoProvider.obterMercadoComClubes();
+
+        ClubeDTO clube = mercado.getClubes().get(id);
+
+        if (clube == null) {
+            throw new RecursoNaoEncontradoException("Clube com id " + id + " não encontrado.");
+        }
+
+        return clube;
+    }
+}
