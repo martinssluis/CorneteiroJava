@@ -4,14 +4,14 @@ import corneteiro.dto.Clube.ClubeBuscaResponse;
 import corneteiro.dto.Clube.ClubeDTO;
 import corneteiro.dto.Clube.ClubeListaResponse;
 import corneteiro.dto.MercadoResponse;
-import corneteiro.exception.RecursoNaoEncontradoException;
 import corneteiro.exception.RequisicaoInvalidaException;
+import corneteiro.exception.RecursoNaoEncontradoException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 @Service
 public class ClubeService {
@@ -25,41 +25,74 @@ public class ClubeService {
     public ClubeListaResponse listarClubes() {
         MercadoResponse mercado = mercadoProvider.obterMercadoComClubes();
 
-        Map<Integer, ClubeDTO> clubesMap = mercado.getClubes();
-        List<ClubeDTO> clubes = new ArrayList<>(clubesMap.values());
+        List<ClubeDTO> clubes = mercado.getClubes().values().stream().toList();
 
         return new ClubeListaResponse(clubes.size(), clubes);
     }
 
     public ClubeBuscaResponse buscarClubePorNome(String nome, boolean exato) {
-        if (nome == null || nome.isBlank()) {
-            throw new RequisicaoInvalidaException("O nome para busca é obrigatório.");
-        }
+        validarParametroNome(nome);
 
         MercadoResponse mercado = mercadoProvider.obterMercadoComClubes();
 
         List<ClubeDTO> clubesEncontrados = mercado.getClubes().values().stream()
-                .filter(clube -> clube.getNome() != null)
-                .filter(clube -> {
-                    if (exato) {
-                        return clube.getNome().equalsIgnoreCase(nome);
-                    }
-                    return clube.getNome().toLowerCase().contains(nome.toLowerCase());
-                })
-                .collect(Collectors.toList());
+                .filter(clube -> correspondeEmCampos(
+                        nome,
+                        exato,
+                        clube.getAbreviacao(),
+                        clube.getApelido(),
+                        clube.getNome(),
+                        clube.getNomeFantasia(),
+                        clube.getSlug()
+                ))
+                .toList();
 
-        return new ClubeBuscaResponse(nome, clubesEncontrados.size(), clubesEncontrados);
+        return new ClubeBuscaResponse(
+                nome,
+                clubesEncontrados.size(),
+                clubesEncontrados
+        );
     }
 
     public ClubeDTO buscarClubePorId(Integer id) {
-        MercadoResponse mercado = mercadoProvider.obterMercadoComClubes();
+        if (id == null) {
+            throw new RequisicaoInvalidaException("O parâmetro 'id' é obrigatório.");
+        }
 
-        ClubeDTO clube = mercado.getClubes().get(id);
+        MercadoResponse mercado = mercadoProvider.obterMercadoComClubes();
+        Map<Integer, ClubeDTO> clubes = mercado.getClubes();
+
+        ClubeDTO clube = clubes.get(id);
 
         if (clube == null) {
             throw new RecursoNaoEncontradoException("Clube com id " + id + " não encontrado.");
         }
 
         return clube;
+    }
+
+    private void validarParametroNome(String nome) {
+        if (nome == null || nome.isBlank()) {
+            throw new RequisicaoInvalidaException("O parâmetro 'nome' é obrigatório.");
+        }
+    }
+
+    private boolean correspondeEmCampos(String termo, boolean exato, String... campos) {
+        return Stream.of(campos)
+                .filter(Objects::nonNull)
+                .anyMatch(campo -> corresponde(campo, termo, exato));
+    }
+
+    private boolean corresponde(String campo, String termo, boolean exato) {
+        String campoNormalizado = normalizar(campo);
+        String termoNormalizado = normalizar(termo);
+
+        return exato
+                ? campoNormalizado.equals(termoNormalizado)
+                : campoNormalizado.contains(termoNormalizado);
+    }
+
+    private String normalizar(String valor) {
+        return valor.trim().toLowerCase();
     }
 }

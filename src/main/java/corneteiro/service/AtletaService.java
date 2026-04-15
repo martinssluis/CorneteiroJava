@@ -4,12 +4,13 @@ import corneteiro.dto.Atleta.AtletaBuscaResponse;
 import corneteiro.dto.Atleta.AtletaDTO;
 import corneteiro.dto.Atleta.AtletaListaResponse;
 import corneteiro.dto.MercadoResponse;
-import corneteiro.exception.RecursoNaoEncontradoException;
 import corneteiro.exception.RequisicaoInvalidaException;
+import corneteiro.exception.RecursoNaoEncontradoException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 @Service
 public class AtletaService {
@@ -28,37 +29,65 @@ public class AtletaService {
     }
 
     public AtletaBuscaResponse buscarAtletaPorNome(String nome, boolean exato) {
-        if (nome == null || nome.isBlank()) {
-            throw new RequisicaoInvalidaException("O nome para busca é obrigatório.");
+        validarParametroNome(nome);
+
+        MercadoResponse mercado = mercadoProvider.obterMercadoComAtletas();
+
+        List<AtletaDTO> atletasEncontrados = mercado.getAtletas().stream()
+                .filter(atleta -> correspondeEmCampos(
+                        nome,
+                        exato,
+                        atleta.getApelido(),
+                        atleta.getApelidoAbreviado(),
+                        atleta.getNome(),
+                        atleta.getSlug()
+                ))
+                .toList();
+
+        return new AtletaBuscaResponse(
+                nome,
+                atletasEncontrados.size(),
+                atletasEncontrados
+        );
+    }
+
+    public AtletaDTO buscarAtletaPorId(Integer id) {
+        if (id == null) {
+            throw new RequisicaoInvalidaException("O parâmetro 'id' é obrigatório.");
         }
 
         MercadoResponse mercado = mercadoProvider.obterMercadoComAtletas();
 
-        List<AtletaDTO> encontrados = mercado.getAtletas().stream()
-                .filter(atleta -> {
-                    if (atleta.getApelido() == null) {
-                        return false;
-                    }
-
-                    if (exato) {
-                        return atleta.getApelido().equalsIgnoreCase(nome);
-                    }
-
-                    return atleta.getApelido().toLowerCase().contains(nome.toLowerCase());
-                })
-                .collect(Collectors.toList());
-
-        return new AtletaBuscaResponse(nome, encontrados.size(), encontrados);
-    }
-
-    public AtletaDTO buscarAtletaPorId(Integer id) {
-        MercadoResponse mercado = mercadoProvider.obterMercadoComAtletas();
-
         return mercado.getAtletas().stream()
-                .filter(atleta -> atleta.getAtletaId().equals(id))
+                .filter(atleta -> Objects.equals(atleta.getAtletaId(), id))
                 .findFirst()
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
                         "Atleta com id " + id + " não encontrado."
                 ));
+    }
+
+    private void validarParametroNome(String nome) {
+        if (nome == null || nome.isBlank()) {
+            throw new RequisicaoInvalidaException("O parâmetro 'nome' é obrigatório.");
+        }
+    }
+
+    private boolean correspondeEmCampos(String termo, boolean exato, String... campos) {
+        return Stream.of(campos)
+                .filter(Objects::nonNull)
+                .anyMatch(campo -> corresponde(campo, termo, exato));
+    }
+
+    private boolean corresponde(String campo, String termo, boolean exato) {
+        String campoNormalizado = normalizar(campo);
+        String termoNormalizado = normalizar(termo);
+
+        return exato
+                ? campoNormalizado.equals(termoNormalizado)
+                : campoNormalizado.contains(termoNormalizado);
+    }
+
+    private String normalizar(String valor) {
+        return valor.trim().toLowerCase();
     }
 }
