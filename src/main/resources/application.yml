@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: corneteiro
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=10,expireAfterWrite=5m
+
+cartola:
+  api:
+    base-url: https://api.cartola.globo.com
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  show-actuator: false
