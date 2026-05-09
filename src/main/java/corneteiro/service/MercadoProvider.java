@@ -37,13 +37,13 @@ public class MercadoProvider {
     }
 
     private void validarAtletas(MercadoResponse mercado) {
-        if (mercado.getAtletas() == null) {
+        if (mercado.atletas() == null) {
             throw new IntegracaoException("A API do Cartola retornou mercado sem lista de atletas.");
         }
     }
 
     private void validarClubes(MercadoResponse mercado) {
-        if (mercado.getClubes() == null) {
+        if (mercado.clubes() == null) {
             throw new IntegracaoException("A API do Cartola retornou mercado sem lista de clubes.");
         }
     }

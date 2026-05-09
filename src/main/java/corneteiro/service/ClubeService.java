@@ -25,7 +25,7 @@ public class ClubeService {
     public ClubeListaResponse listarClubes() {
         MercadoResponse mercado = mercadoProvider.obterMercadoComClubes();
 
-        List<ClubeDTO> clubes = mercado.getClubes().values().stream().toList();
+        List<ClubeDTO> clubes = mercado.clubes().values().stream().toList();
 
         return new ClubeListaResponse(clubes.size(), clubes);
     }
@@ -35,15 +35,15 @@ public class ClubeService {
 
         MercadoResponse mercado = mercadoProvider.obterMercadoComClubes();
 
-        List<ClubeDTO> clubesEncontrados = mercado.getClubes().values().stream()
+        List<ClubeDTO> clubesEncontrados = mercado.clubes().values().stream()
                 .filter(clube -> correspondeEmCampos(
                         nome,
                         exato,
-                        clube.getAbreviacao(),
-                        clube.getApelido(),
-                        clube.getNome(),
-                        clube.getNomeFantasia(),
-                        clube.getSlug()
+                        clube.abreviacao(),
+                        clube.apelido(),
+                        clube.nome(),
+                        clube.nomeFantasia(),
+                        clube.slug()
                 ))
                 .toList();
 
@@ -60,7 +60,7 @@ public class ClubeService {
         }
 
         MercadoResponse mercado = mercadoProvider.obterMercadoComClubes();
-        Map<Integer, ClubeDTO> clubes = mercado.getClubes();
+        Map<Integer, ClubeDTO> clubes = mercado.clubes();
 
         ClubeDTO clube = clubes.get(id);
 

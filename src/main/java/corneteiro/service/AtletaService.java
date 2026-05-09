@@ -23,7 +23,7 @@ public class AtletaService {
 
     public AtletaListaResponse listarAtletas() {
         MercadoResponse mercado = mercadoProvider.obterMercadoComAtletas();
-        List<AtletaDTO> atletas = mercado.getAtletas();
+        List<AtletaDTO> atletas = mercado.atletas();
 
         return new AtletaListaResponse(atletas.size(), atletas);
     }
@@ -33,14 +33,14 @@ public class AtletaService {
 
         MercadoResponse mercado = mercadoProvider.obterMercadoComAtletas();
 
-        List<AtletaDTO> atletasEncontrados = mercado.getAtletas().stream()
+        List<AtletaDTO> atletasEncontrados = mercado.atletas().stream()
                 .filter(atleta -> correspondeEmCampos(
                         nome,
                         exato,
-                        atleta.getApelido(),
-                        atleta.getApelidoAbreviado(),
-                        atleta.getNome(),
-                        atleta.getSlug()
+                        atleta.apelido(),
+                        atleta.apelidoAbreviado(),
+                        atleta.nome(),
+                        atleta.slug()
                 ))
                 .toList();
 
@@ -58,8 +58,8 @@ public class AtletaService {
 
         MercadoResponse mercado = mercadoProvider.obterMercadoComAtletas();
 
-        return mercado.getAtletas().stream()
-                .filter(atleta -> Objects.equals(atleta.getAtletaId(), id))
+        return mercado.atletas().stream()
+                .filter(atleta -> Objects.equals(atleta.atletaId(), id))
                 .findFirst()
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
                         "Atleta com id " + id + " não encontrado."
