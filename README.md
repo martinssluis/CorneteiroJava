@@ -57,10 +57,62 @@ src/main/java/corneteiro/
 
 ```bash
 git clone https://github.com/martinssluis/CorneteiroJava.git
-````
+cd CorneteiroJava
+```
+
+### 2. Executar com Docker
+
+#### Build e iniciar a aplicação
+
+```bash
+docker compose up --build
+```
+
+Esse comando vai:
+- Compilar o projeto com Maven dentro de um container
+- Criar a imagem Docker da aplicação
+- Iniciar o container em background
+
+#### Parar a aplicação
+
+```bash
+docker compose down
+```
+
+#### Ver logs em tempo real
+
+```bash
+docker compose logs -f app
+```
+
+#### Reconstruir (sem cache)
+
+```bash
+docker compose build --no-cache
+docker compose up
+```
 
 ## 🌐 Acessando a aplicação
 
 Após iniciar, a aplicação estará disponível em:
 
-http://localhost:8080
+```
+http://localhost:1895
+```
+
+### Exemplos de requisições
+
+**Buscar todos os atletas:**
+```bash
+curl http://localhost:1895/atletas
+```
+
+**Buscar atleta por ID:**
+```bash
+curl http://localhost:1895/atletas/1
+```
+
+**Buscar todos os clubes:**
+```bash
+curl http://localhost:1895/clubes
+```
