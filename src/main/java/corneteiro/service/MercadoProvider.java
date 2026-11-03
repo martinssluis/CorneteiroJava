@@ -3,7 +3,6 @@ package corneteiro.service;
 import corneteiro.client.CartolaApiClient;
 import corneteiro.dto.MercadoResponse;
 import corneteiro.exception.IntegracaoException;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,7 +26,7 @@ public class MercadoProvider {
         return mercado;
     }
 
-    @Cacheable("mercado") // faz o spring pegar o chace em fez de fazer outra requisição http
+    // O cache de "mercado" fica em CartolaApiClient.buscarMercado().
     private MercadoResponse obterMercado() {
         MercadoResponse mercado = cartolaApiClient.buscarMercado();
 
