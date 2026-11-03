@@ -27,11 +27,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture
 
-**Data Flow:** `CartolaApiClient` (REST calls) → `MercadoProvider` (caching + validation) → `Services` (business logic) → `Controllers` (HTTP endpoints)
+**Data Flow:** `CartolaApiClient` (REST calls) → `MercadoProvider` (validation; cache lives in `CartolaApiClient`) → `Services` (business logic) → `Controllers` (HTTP endpoints)
 
 **Key Patterns:**
 - **@Bean**: Creates reusable singletons (e.g., `RestClient`)
-- **@Cacheable**: Decorates methods to cache results (applied to `MercadoProvider.obterMercado()`)
+- **@Cacheable**: Decorates methods to cache results (applied to the public `CartolaApiClient.buscarMercado()`; it does NOT work on private methods or self-invocation, since Spring applies it via proxy)
 - **@Component/@Service**: Spring auto-injection
 - **Records**: Immutable DTOs with built-in accessors (e.g., `atleta.nome()` not `atleta.getNome()`)
 - **GlobalExceptionHandler**: Centralized error handling for API responses
@@ -109,6 +109,6 @@ Reference: `GUIA_PROFISSIONALIZACAO.md` contains detailed step-by-step instructi
 
 1. **Records use different syntax:** `record.campo()` instead of `record.getCampo()`. Check for this when working with DTOs.
 2. **@Value("${cartola.api.base-url}")** injects from `application.yml`. Don't hardcode URLs.
-3. **MercadoProvider is the cache layer:** All API calls go through it; services consume its validated output.
+3. **MercadoProvider validates, CartolaApiClient caches:** All API calls go through MercadoProvider; the `mercado` cache is on `CartolaApiClient.buscarMercado()`. Guarded by `MercadoProviderCacheTest`.
 4. **Test setup creates Records:** When mocking AtletaDTO, use constructor syntax: `new AtletaDTO(1, "Nome", "apelido", ...)`
 5. **Keep examples contextualized:** Use Arrascaeta, Neymar, Rodrygo (Brasileirão players), not international league players.
