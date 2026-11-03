@@ -39,10 +39,8 @@ public class ClubeService {
                 .filter(clube -> correspondeEmCampos(
                         nome,
                         exato,
-                        clube.abreviacao(),
                         clube.apelido(),
                         clube.nome(),
-                        clube.nomeFantasia(),
                         clube.slug()
                 ))
                 .toList();
