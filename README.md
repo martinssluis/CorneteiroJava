@@ -138,3 +138,36 @@ curl http://localhost:1895/atletas/1
 ```bash
 curl http://localhost:1895/clubes
 ```
+
+## 📖 Documentação da API (Swagger)
+
+Com a aplicação rodando:
+
+| Recurso | URL |
+|---------|-----|
+| Swagger UI (interativo) | http://localhost:1895/swagger-ui.html |
+| OpenAPI (JSON) | http://localhost:1895/v3/api-docs |
+
+### Endpoints
+
+| Método | Rota | Descrição | Respostas |
+|--------|------|-----------|-----------|
+| GET | `/atletas` | Lista todos os atletas do mercado | 200, 500 |
+| GET | `/atletas/buscar?nome=&exato=` | Busca atletas por nome (parcial por padrão) | 200, 400, 500 |
+| GET | `/atletas/{id}` | Busca atleta por ID | 200, 404, 500 |
+| GET | `/clubes` | Lista todos os clubes | 200, 500 |
+| GET | `/clubes/buscar?nome=&exato=` | Busca clubes por nome (parcial por padrão) | 200, 400, 500 |
+| GET | `/clubes/{id}` | Busca clube por ID | 200, 404, 500 |
+
+Erros seguem o formato `ApiErrorResponse` (`timestamp`, `status`, `error`, `message`, `path`).
+
+> Os campos de atleta com mais de uma palavra são serializados em `snake_case`
+> (`atleta_id`, `preco_num`, `ponto_num`). O trecho `FORMATO` da URL de `foto` deve ser
+> trocado pelo tamanho desejado, como `80x80`.
+
+## 🛠️ Solução de problemas
+
+| Sintoma | Causa provável |
+|---------|----------------|
+| `GET /atletas` ou `/clubes` retorna 500 | A API do Cartola está inacessível. Redes com filtro de conteúdo (ex.: FortiGuard) podem bloquear `api.cartola.globo.com`. Teste com `curl https://api.cartola.globo.com/atletas/mercado` |
+| `Port 1895 already in use` | Outro processo usa a porta. No Windows: `netstat -ano \| findstr :1895` |
