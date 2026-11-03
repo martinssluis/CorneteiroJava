@@ -1,6 +1,8 @@
 package corneteiro.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,6 +13,8 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(RequisicaoInvalidaException.class)
     public ResponseEntity<ApiErrorResponse> handleBadRequest(
@@ -59,6 +63,7 @@ public class GlobalExceptionHandler {
             IntegracaoException ex,
             HttpServletRequest request
     ) {
+        log.error("Falha na integração com a API do Cartola em {}", request.getRequestURI(), ex);
         ApiErrorResponse error = new ApiErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -75,6 +80,7 @@ public class GlobalExceptionHandler {
             Exception ex,
             HttpServletRequest request
     ) {
+        log.error("Erro inesperado em {}", request.getRequestURI(), ex);
         ApiErrorResponse error = new ApiErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
