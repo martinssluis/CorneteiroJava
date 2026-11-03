@@ -122,6 +122,9 @@ Decididas também:
 - Padrão de status: `Provável`, com opção de incluir os demais.
 - Limite máximo da janela de forma recente: 10 rodadas.
 
+Resolvido:
+- O campo de pontuação da Cartola é `pontos_num`; o `AtletaDTO` e o front já usam esse nome
+  (antes lia `ponto_num` e a pontuação chegava sempre nula). Coberto por `AtletaDTOJsonTest`.
+
 Em aberto:
-- O campo de pontuação da Cartola é `pontos_num`, mas o backend lê `ponto_num` e a pontuação
-  chega sempre nula. Corrigir junto com o craque da rodada (RF03), ajustando o contrato e o front.
+- Nenhum no momento.

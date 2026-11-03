@@ -168,7 +168,7 @@ Cada item traz o campo `motivo` com os valores usados no cálculo.
 Erros seguem o formato `ApiErrorResponse` (`timestamp`, `status`, `error`, `message`, `path`).
 
 > Os campos de atleta com mais de uma palavra são serializados em `snake_case`
-> (`atleta_id`, `preco_num`, `ponto_num`). O trecho `FORMATO` da URL de `foto` deve ser
+> (`atleta_id`, `preco_num`, `pontos_num`). O trecho `FORMATO` da URL de `foto` deve ser
 > trocado pelo tamanho desejado, como `80x80`.
 
 ## 🛠️ Solução de problemas
