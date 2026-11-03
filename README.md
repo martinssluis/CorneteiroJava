@@ -60,7 +60,29 @@ git clone https://github.com/martinssluis/CorneteiroJava.git
 cd CorneteiroJava
 ```
 
-### 2. Executar com Docker
+### 2. Executar localmente (sem Docker)
+
+**Pré-requisitos:** JDK 21+ e Maven 3.9+ (ou use o wrapper `./mvnw`, que dispensa instalar o Maven).
+
+```bash
+mvn spring-boot:run
+```
+
+A API sobe em `http://localhost:1895` e o Swagger em `http://localhost:1895/swagger-ui.html`.
+Para parar, use `Ctrl+C` no terminal.
+
+Outros comandos úteis:
+
+```bash
+mvn clean compile   # compila e verifica erros
+mvn test            # roda os testes
+mvn clean package   # gera o JAR em target/
+```
+
+> O frontend Angular (`http://localhost:4200`) tem CORS liberado nesta API.
+> Para rodar o frontend, veja o README em `CorneteiroAngular/corneteiro`.
+
+### 3. Executar com Docker
 
 #### Build e iniciar a aplicação
 
