@@ -56,10 +56,10 @@ class RecomendacaoServiceTest {
                 atleta(7, "Gabigol", FLAMENGO, ATACANTE, PROVAVEL, 10.0, 7.0, 10)   // 0.700
         );
         Map<Integer, ClubeDTO> clubes = Map.of(
-                FLAMENGO, new ClubeDTO(FLAMENGO, "flamengo", "Flamengo", Map.of(), "FLA"),
-                CORINTHIANS, new ClubeDTO(CORINTHIANS, "corinthians", "Corinthians", Map.of(), "COR"),
-                PALMEIRAS, new ClubeDTO(PALMEIRAS, "palmeiras", "Palmeiras", Map.of(), "PAL"),
-                SANTOS, new ClubeDTO(SANTOS, "santos", "Santos", Map.of(), "SAN")
+                FLAMENGO, new ClubeDTO(FLAMENGO, "flamengo", "Mengão", Map.of(), "FLA"),
+                CORINTHIANS, new ClubeDTO(CORINTHIANS, "corinthians", "Timão", Map.of(), "COR"),
+                PALMEIRAS, new ClubeDTO(PALMEIRAS, "palmeiras", "Verdão", Map.of(), "PAL"),
+                SANTOS, new ClubeDTO(SANTOS, "santos", "Peixe", Map.of(), "SAN")
         );
         when(mercadoProvider.obterMercadoComAtletas()).thenReturn(new MercadoResponse(atletas, clubes));
 
@@ -167,9 +167,17 @@ class RecomendacaoServiceTest {
 
         // Palmeiras: Veiga 0.700 (Rony fora, preço 0) | Flamengo: (0.600 + 0.700) / 2 = 0.650 | Santos: 0.400
         assertEquals(List.of("Palmeiras", "Flamengo", "Santos"),
-                resposta.clubes().stream().map(c -> c.apelido()).toList());
+                resposta.clubes().stream().map(c -> c.nome()).toList());
         assertEquals(0.65, resposta.clubes().get(1).custoBeneficioMedio());
         assertEquals(2, resposta.clubes().get(1).quantidadeAtletas());
+    }
+
+    @Test
+    void rankingDeClubesTrazONomeDoClubeEOApelido() {
+        var flamengo = service.custoBeneficioClubes(null, 3, SO_PROVAVEIS, 20).clubes().get(1);
+
+        assertEquals("Flamengo", flamengo.nome());
+        assertEquals("Mengão", flamengo.apelido());
     }
 
     @Test
@@ -178,7 +186,7 @@ class RecomendacaoServiceTest {
 
         // Atacantes elegíveis: Gabigol (Flamengo, 0.700) e Neymar (Santos, 0.400)
         assertEquals(List.of("Flamengo", "Santos"),
-                resposta.clubes().stream().map(c -> c.apelido()).toList());
+                resposta.clubes().stream().map(c -> c.nome()).toList());
     }
 
     @Test
