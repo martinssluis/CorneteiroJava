@@ -170,6 +170,9 @@ Erros seguem o formato `ApiErrorResponse` (`timestamp`, `status`, `error`, `mess
 > Os campos de atleta com mais de uma palavra são serializados em `snake_case`
 > (`atleta_id`, `preco_num`, `pontos_num`). O trecho `FORMATO` da URL de `foto` deve ser
 > trocado pelo tamanho desejado, como `80x80`.
+>
+> Nos clubes, a Cartola envia só a sigla (`nome`, ex.: `FLA`) e o apelido (`apelido`, ex.: `Mengão`).
+> O nome oficial (`nome_completo`, ex.: `Flamengo`) é derivado do `slug` pelo backend.
 
 ## 🛠️ Solução de problemas
 
