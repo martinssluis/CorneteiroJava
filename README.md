@@ -158,6 +158,12 @@ Com a aplicação rodando:
 | GET | `/clubes` | Lista todos os clubes | 200, 500 |
 | GET | `/clubes/buscar?nome=&exato=` | Busca clubes por nome (parcial por padrão) | 200, 400, 500 |
 | GET | `/clubes/{id}` | Busca clube por ID | 200, 404, 500 |
+| GET | `/recomendacoes/custo-beneficio` | Ranking de atletas por média ÷ preço | 200, 400, 404, 500 |
+| GET | `/recomendacoes/custo-beneficio/clubes` | Ranking de clubes pela média do custo-benefício | 200, 400, 500 |
+
+Parâmetros das recomendações: `posicaoId`, `clubeId` (só em atletas), `minJogos` (padrão 3),
+`status` (padrão 7, aceita vários separados por vírgula) e `limite` (padrão 20, máximo 100).
+Cada item traz o campo `motivo` com os valores usados no cálculo.
 
 Erros seguem o formato `ApiErrorResponse` (`timestamp`, `status`, `error`, `message`, `path`).
 

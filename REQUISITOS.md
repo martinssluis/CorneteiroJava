@@ -37,6 +37,7 @@ Limites conhecidos:
 | RF02.2 | Filtrar por **clube** (`clubeId`) | Alta | Não |
 | RF02.3 | **Mínimo de jogos** configurável por requisição; padrão **3** | Alta | Não |
 | RF02.4 | Excluir atletas com preço 0 e filtrar por status (padrão: `Provável`) | Alta | Não |
+| RF02.5 | **Ranking de clubes** pela média do custo-benefício dos atletas elegíveis | Alta | Não |
 | RF03 | **Craque da rodada:** maiores pontuadores, geral e por posição, ordenando por `pontos_num` (ou `pontuados/{rodada}` para uma rodada específica) | Média | Não |
 | RF04 | Cada recomendação traz o **motivo** (valores usados no cálculo) | Alta | Não |
 | RF05 | Guardar no banco o histórico da temporada: carga das rodadas já jogadas (rodada 1 em diante) e snapshot de preços a partir de agora | Média | Sim |
@@ -54,7 +55,8 @@ Regras de negócio:
 Contrato proposto (a validar na implementação):
 
 ```
-GET /recomendacoes/custo-beneficio?posicaoId=&clubeId=&minJogos=3&status=7&limite=20
+GET /recomendacoes/custo-beneficio?posicaoId=&clubeId=&minJogos=3&status=7&limite=20   (implementado)
+GET /recomendacoes/custo-beneficio/clubes?posicaoId=&minJogos=3&status=7&limite=20     (implementado)
 GET /recomendacoes/craques?posicaoId=&rodada=&limite=10
 GET /recomendacoes/forma?rodadas=3&posicaoId=&clubeId=
 ```
@@ -94,7 +96,7 @@ GET /recomendacoes/forma?rodadas=3&posicaoId=&clubeId=
 
 ## 5. Ordem de entrega
 
-1. **Custo-benefício** por posição e clube, sem banco (RF02, RF04).
+1. **Custo-benefício** por posição e clube, e ranking de clubes, sem banco (RF02, RF04) — **implementado**.
 2. **Craque da rodada** (RF03).
 3. **Banco** (Postgres, Flyway) com carga das rodadas passadas e snapshot de preços (RF05).
 4. **Redis** para cachear os rankings calculados.
@@ -115,7 +117,11 @@ Decididas:
 - Usuários e login ficam fora do escopo.
 - Event sourcing não é necessário: os dados já são snapshots imutáveis por rodada.
 
+Decididas também:
+- O ranking agregado de clubes faz parte do escopo (RF02.5).
+- Padrão de status: `Provável`, com opção de incluir os demais.
+- Limite máximo da janela de forma recente: 10 rodadas.
+
 Em aberto:
-- Segmentação por clube também como **ranking agregado de clubes**? (hoje apenas filtro)
-- Filtro de status: confirmar o padrão `Provável` com opção de incluir os demais.
-- Limite máximo da janela de forma recente (sugestão: 10 rodadas).
+- O campo de pontuação da Cartola é `pontos_num`, mas o backend lê `ponto_num` e a pontuação
+  chega sempre nula. Corrigir junto com o craque da rodada (RF03), ajustando o contrato e o front.
