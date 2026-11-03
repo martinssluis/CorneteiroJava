@@ -38,7 +38,7 @@ public record AtletaDTO(
     @Schema(description = "Preço em cartoletas (C$)", example = "12.5")
     Double precoNum,
 
-    @JsonProperty("ponto_num")
+    @JsonProperty("pontos_num")
     @Schema(description = "Pontuação na última rodada; null se não jogou", example = "6.3", nullable = true)
     Double pontosNum,
 
