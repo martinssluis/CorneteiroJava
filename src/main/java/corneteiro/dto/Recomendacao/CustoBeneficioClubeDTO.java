@@ -11,7 +11,10 @@ public record CustoBeneficioClubeDTO(
         @Schema(description = "ID do clube", example = "262")
         Integer clubeId,
 
-        @Schema(description = "Nome por extenso", example = "Flamengo")
+        @Schema(description = "Nome do clube", example = "Flamengo")
+        String nome,
+
+        @Schema(description = "Apelido do clube", example = "Mengão")
         String apelido,
 
         @Schema(description = "URLs dos escudos por tamanho")

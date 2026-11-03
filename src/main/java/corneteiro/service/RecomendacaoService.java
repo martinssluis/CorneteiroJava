@@ -69,7 +69,7 @@ public class RecomendacaoService {
         List<CustoBeneficioClubeDTO> ranking = porClube.entrySet().stream()
                 .map(entry -> paraClubeDto(clubes.get(entry.getKey()), entry.getValue()))
                 .sorted(Comparator.comparing(CustoBeneficioClubeDTO::custoBeneficioMedio).reversed()
-                        .thenComparing(CustoBeneficioClubeDTO::apelido))
+                        .thenComparing(CustoBeneficioClubeDTO::nome))
                 .limit(limite)
                 .toList();
 
@@ -105,7 +105,7 @@ public class RecomendacaoService {
                 atletas.size(), media);
 
         return new CustoBeneficioClubeDTO(
-                clube.id(), clube.apelido(), clube.escudos(), atletas.size(), media, motivo);
+                clube.id(), clube.nomeCompleto(), clube.apelido(), clube.escudos(), atletas.size(), media, motivo);
     }
 
     private Comparator<CustoBeneficioAtletaDTO> comparadorAtletas() {
